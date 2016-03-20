@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start"
+        android:id="@+id/button"
+        android:layout_gravity="center_horizontal"/>
+
+   <include
+       layout="@layout/progress_with_text"
+       android:id="@+id/bar1"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar2"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar3"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar4"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar5"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar6"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar7"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar8"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar9"/>
+    <include
+        layout="@layout/progress_with_text"
+        android:id="@+id/bar10"/>
+
+    <TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:id="@+id/text"/>
+
+
+</LinearLayout>
