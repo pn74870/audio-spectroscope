@@ -94,14 +94,15 @@ private RecordingTask task;
             while (isRecording) {
                 audioRecord.read(buffer, 0, blockSize);
                 double[] doubleBuffer = new double[buffer.length];
-                for (int i = 0; i < buffer.length; i++)
+                for (int i = 0; i < buffer.length; i++){
                     doubleBuffer[i] = (double) buffer[i] / 32768.0;
+                }
                 ComplexNumber[] ft = FourierTransform.calculateFT(doubleBuffer);
                 double ans[] = new double[ft.length];
                 for (int i = 0; i < ft.length; i++)
                     ans[i] = ft[i].modulusSq();
                 publishProgress(ans);
-               Log.e("asd","awake");
+
             }
 
             return null;

@@ -20,7 +20,7 @@ import android.widget.TextView;
  * Created by pn748_000 on 3/20/2016.
  */
 public class MainActivity extends AppCompatActivity implements TaskFragment.TaskCallbacks {
-    private static final double sensitivity=.5;
+    private static final double sensitivity=.7;
     private static final String FRAGMENT_TAG = "tag1";
     private boolean isRecordering = false;
     private static final int frequency = 8000;
@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     private TextView text;
     private boolean messageSent=false;
     private int numberOfReceived=0;
+    private int [] dial={22,25,27};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,22 +93,39 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
         String msg="!?";
         SmsManager sm = SmsManager.getDefault();
        // sm.sendTextMessage(number, null, msg, null, null);
-        text.setText("number of events: "+ ++numberOfReceived);
+       text.setText("number of events: "+ ++numberOfReceived);
     }
 
     @Override
     public void progressUpdate(double[] values) {
         int j;
-        for (int i = 0; i < bars.length; i++) {
-            j = i * values.length / bars.length;
-            bars[i].setProgress((int) (values[j] * 1000));
+       /* for (int i = 0; i < bars.length; i++) {
+            j = i * values.length /8/ bars.length;
+           bars[i].setProgress((int) (values[j] * 1000));
             freqTexts[i].setText(frequency * j / blockSize + " Hz");
-            if (i == 4) {
+           if (i == 5) {
                 //text.setText(values[j]+"");
                 if (values[j] > sensitivity && !messageSent) onFrequencyReceived();
-                if(messageSent && values[j]<.2) messageSent=false;
+                if(messageSent && values[j]<sensitivity/5) messageSent=false;
             }
-        }
 
+
+        }*/
+        for(int i=0;i<dial.length;i++){
+            j = dial[i];
+            bars[i].setProgress((int) (values[j] * 1000));
+            freqTexts[i].setText(frequency * j / blockSize + " Hz");
+            if(values[j]>sensitivity)
+                text.setText(frequency * j / blockSize + " Hz");
+        }
+        //text.setText("Max: "+frequency * indexOfMax(values)/ blockSize+" Hz");
+
+    }
+    private int indexOfMax(double [] array){
+        int max=0;
+        for(int i=1;i<array.length;i++){
+            if(array[i]>array[max]) max=i;
+        }
+        return max;
     }
 }
