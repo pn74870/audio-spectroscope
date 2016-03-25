@@ -35,6 +35,14 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        double[] testInput=new double[] { 0.0,1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0};
+        ComplexNumber[] testArray=ComplexNumber.createRealArray(testInput);
+        FourierTransform.calcFFT(testArray);
+        for(ComplexNumber c:testArray) Log.e("asd",c.realPart+" i*"+c.imaginaryPart);
+        Log.e("asd", "---------");
+        for (ComplexNumber c: FourierTransform.calculateFT(testInput)) Log.e("asd", c.realPart + " i*" + c.imaginaryPart);
+        Log.e("asd", "----------");
+        for(ComplexNumber c:FourierTransform.calculateFFT(testInput))Log.e("asd", c.realPart + " i*" + c.imaginaryPart);
         setContentView(R.layout.activity_main);
         text = (TextView) findViewById(R.id.text);
         configureProgressBars();
@@ -99,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     @Override
     public void progressUpdate(double[] values) {
         int j;
-       /* for (int i = 0; i < bars.length; i++) {
+        for (int i = 0; i < bars.length; i++) {
             j = i * values.length /8/ bars.length;
            bars[i].setProgress((int) (values[j] * 1000));
             freqTexts[i].setText(frequency * j / blockSize + " Hz");
@@ -110,8 +118,8 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
             }
 
 
-        }*/
-        for(int i=0;i<dial.length;i++){
+        }
+    /*    for(int i=0;i<dial.length;i++){
             j = dial[i];
             bars[i].setProgress((int) (values[j] * 1000));
             freqTexts[i].setText(frequency * j / blockSize + " Hz");
@@ -119,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
                 text.setText(frequency * j / blockSize + " Hz");
         }
         //text.setText("Max: "+frequency * indexOfMax(values)/ blockSize+" Hz");
-
+*/
     }
     private int indexOfMax(double [] array){
         int max=0;

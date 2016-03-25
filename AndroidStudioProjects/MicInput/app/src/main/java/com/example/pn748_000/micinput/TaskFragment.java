@@ -97,7 +97,9 @@ private RecordingTask task;
                 for (int i = 0; i < buffer.length; i++){
                     doubleBuffer[i] = (double) buffer[i] / 32768.0;
                 }
-                ComplexNumber[] ft = FourierTransform.calculateFT(doubleBuffer);
+                //ComplexNumber[] ft = FourierTransform.calculateFFT(doubleBuffer);
+                ComplexNumber[] ft=ComplexNumber.createRealArray(doubleBuffer);
+                FourierTransform.calcFFT(ft);
                 double ans[] = new double[ft.length];
                 for (int i = 0; i < ft.length; i++)
                     ans[i] = ft[i].modulusSq();
@@ -117,7 +119,10 @@ private RecordingTask task;
 
     @Override
     public void onStop() {
-        if(task!=null )task.cancel(true);
+        if(task!=null ){
+            isRecording=false;
+            task.cancel(true);
+        }
         super.onStop();
     }
 }
