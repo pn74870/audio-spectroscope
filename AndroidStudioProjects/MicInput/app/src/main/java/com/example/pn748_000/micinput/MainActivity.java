@@ -20,7 +20,7 @@ import android.widget.TextView;
  * Created by pn748_000 on 3/20/2016.
  */
 public class MainActivity extends AppCompatActivity implements TaskFragment.TaskCallbacks {
-    private static final double sensitivity=.7;
+    private static final double sensitivity=1.0;
     private static final String FRAGMENT_TAG = "tag1";
     private boolean isRecordering = false;
     private static final int frequency = 8000;
@@ -29,20 +29,14 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     private TextView[] freqTexts;
     private TaskFragment fragment;
     private TextView text;
-    private boolean messageSent=false;
-    private int numberOfReceived=0;
-    private int [] dial={22,25,27};
+    private boolean messageSent=false,event1=false,event2=false;
+    private int numberOfReceived1=0,numberOFReceived2=0;
+    private double []  dialFrequencies={697,770,852, 941,1209,1336,1477,1633};
+    private int [] dialIndeces;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        double[] testInput=new double[] { 0.0,1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0};
-        ComplexNumber[] testArray=ComplexNumber.createRealArray(testInput);
-        FourierTransform.calcFFT(testArray);
-        for(ComplexNumber c:testArray) Log.e("asd",c.realPart+" i*"+c.imaginaryPart);
-        Log.e("asd", "---------");
-        for (ComplexNumber c: FourierTransform.calculateFT(testInput)) Log.e("asd", c.realPart + " i*" + c.imaginaryPart);
-        Log.e("asd", "----------");
-        for(ComplexNumber c:FourierTransform.calculateFFT(testInput))Log.e("asd", c.realPart + " i*" + c.imaginaryPart);
         setContentView(R.layout.activity_main);
         text = (TextView) findViewById(R.id.text);
         configureProgressBars();
@@ -66,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
                 fragment.switchTask(isRecordering);
             }
         });
-
+        dialIndeces=indexOfDialTones();
 
     }
 
@@ -94,19 +88,22 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     }
 
 
-    private void onFrequencyReceived() {
+    private void onFrequencyReceived(int numb) {
         messageSent=true;
         Log.e("asd","freqReceived");
         String number = "863754345";
         String msg="!?";
         SmsManager sm = SmsManager.getDefault();
+        numberOfReceived1+=numb==1?1:0;
+        numberOFReceived2+=numb==2?1:0;
        // sm.sendTextMessage(number, null, msg, null, null);
-       text.setText("number of events: "+ ++numberOfReceived);
+       text.setText(String.format("number of 1 events: %d\n number of 2 events: %d", numberOfReceived1,numberOFReceived2));
+
     }
 
     @Override
     public void progressUpdate(double[] values) {
-        int j;
+      /*  int j;
         for (int i = 0; i < bars.length; i++) {
             j = i * values.length /8/ bars.length;
            bars[i].setProgress((int) (values[j] * 1000));
@@ -118,7 +115,23 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
             }
 
 
+        }*/
+
+        for(int i=0;i<dialIndeces.length;i++){
+            bars[i].setProgress((int) values[dialIndeces[i]] * 1000);
+            freqTexts[i].setText(String.format("%d Hz", (int) ((double) frequency * dialIndeces[i] / blockSize)));
         }
+        if(!event1&&checkDial(values,dialIndeces[0],dialIndeces[6])){
+            onFrequencyReceived(1);
+            event1=true;}
+        if(!event2&&checkDial(values,dialIndeces[1],dialIndeces[6])) {
+            onFrequencyReceived(2);
+            event2=true;
+        }
+        if(values[dialIndeces[0]]<sensitivity && values[dialIndeces[6]]<sensitivity && event1) event1=false;
+        if(values[dialIndeces[1]]<sensitivity && values[dialIndeces[6]]<sensitivity && event2) event2=false;
+
+
     /*    for(int i=0;i<dial.length;i++){
             j = dial[i];
             bars[i].setProgress((int) (values[j] * 1000));
@@ -129,11 +142,48 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
         //text.setText("Max: "+frequency * indexOfMax(values)/ blockSize+" Hz");
 */
     }
+
+    private boolean checkDial(double[] values, int index1, int index2){
+        boolean noOtherFreq=true;
+        for(int i=0;i<values.length/2;i++){
+            if(Math.abs(i-index1)>1 && Math.abs(i-index2)>1 &&values[i]>sensitivity)
+                noOtherFreq=false;
+            if(values[index1]>sensitivity && values[index2]>sensitivity)
+                Log.e("asd",String.format("%d Hz %.5f",(int)((double)frequency/blockSize*i),values[i]));
+        }
+        return noOtherFreq && values[index1]>sensitivity && values[index2]>sensitivity;
+
+    }
+
     private int indexOfMax(double [] array){
         int max=0;
         for(int i=1;i<array.length;i++){
             if(array[i]>array[max]) max=i;
         }
         return max;
+    }
+    private int[] indexOfDialTones(){
+        int [] indices=new int[dialFrequencies.length];
+        int indexOfClosest;
+        double freq,diff,diffBest;
+        for(int j=0;j<dialFrequencies.length;j++){
+            indexOfClosest=0;
+            for(int i=1;i<blockSize;i++){
+               freq=(double)frequency/blockSize*i;
+               diff=difference(freq,dialFrequencies[j]);
+               diffBest=difference((double)frequency/blockSize*indexOfClosest,dialFrequencies[j]);
+
+                if(diff<diffBest){
+                    indexOfClosest=i;
+
+                }
+        }
+
+            indices[j]=indexOfClosest;
+    }
+    return indices;
+    }
+    private static double difference(double a , double b){
+        return Math.abs(a-b);
     }
 }

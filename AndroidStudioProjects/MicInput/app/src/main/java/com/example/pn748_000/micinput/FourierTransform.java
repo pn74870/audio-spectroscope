@@ -6,7 +6,7 @@ import android.util.Log;
  * Created by pn748_000 on 3/20/2016.
  */
 public class FourierTransform {
-    public static ComplexNumber[] calculateFT(double[] fx){
+    public static ComplexNumber[] calculateFT(double[] fx){ //simple sum algorithm
         int n=fx.length;
         ComplexNumber[] fk=new ComplexNumber[n];
         for(int i=0; i<n;i++){
@@ -23,7 +23,7 @@ public class FourierTransform {
         }
         return fk;
     }
-    public static ComplexNumber[] calculateFFT(double[] fx){
+    public static ComplexNumber[] calculateFFT(double[] fx){ //uses fft recursion
         int n=fx.length;
         if(n==1){
             return new ComplexNumber[]{new ComplexNumber(0,fx[0])};
@@ -45,7 +45,7 @@ public class FourierTransform {
         }
         return ans;
         }
-    public static int reverseBits(int x, int bits){
+    private static int reverseBits(int x, int bits){
         int shiftedX=x,count=bits-1;
         for(x>>=1; x>0;x>>=1){
             count--;
@@ -57,11 +57,11 @@ public class FourierTransform {
         return shiftedX&((1<<bits)-1);
     }
     private static void swap(ComplexNumber[] array,int i, int j ){
-        ComplexNumber temp=new ComplexNumber(array[i]);
-        array[i]=new ComplexNumber(array[j]);
+        ComplexNumber temp=array[i];
+        array[i]=array[j];
         array[j]=temp;
     }
-    public static void calcFFT(ComplexNumber[] signal){
+    public static void calcFFT(ComplexNumber[] signal){// Cooley-Tukey fft
         int n=signal.length,bits=(int)(Math.log(n)/Math.log(2)),iReversed,iNot,iReversedNot,iMax=n-1;
       /*  ComplexNumber[] twiddleFactors=new ComplexNumber[n];
         for(int i=0; i<n;i++){
