@@ -14,7 +14,7 @@ import android.util.Log;
  */
 public class TaskFragment extends Fragment {
     private static final String ARG_FREQ = "freq", ARG_BLOCK_SIZE = "size";
-    private TaskCallbacks callbacks;
+    public TaskCallbacks callbacks;
     private int frequency;
     private int blockSize;
 private RecordingTask task;
@@ -106,7 +106,8 @@ private RecordingTask task;
                 publishProgress(ans);
 
             }
-
+            audioRecord.stop();
+            audioRecord.release();
             return null;
         }
 
@@ -119,10 +120,10 @@ private RecordingTask task;
 
     @Override
     public void onStop() {
-        if(task!=null ){
+      /*  if(task!=null ){
             isRecording=false;
             task.cancel(true);
-        }
+        }*/
         super.onStop();
     }
 }

@@ -1,20 +1,16 @@
 package com.example.pn748_000.micinput;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v4.app.FragmentManager;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Created by pn748_000 on 3/20/2016.
@@ -22,7 +18,8 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity implements TaskFragment.TaskCallbacks {
     private static final double sensitivity=1.0;
     private static final String FRAGMENT_TAG = "tag1";
-    private boolean isRecordering = false;
+    private static final String ARG_IS_RECORDING ="is recording";
+    private boolean isRecording = false;
     private static final int frequency = 8000;
     private static final int blockSize = 256;
     private ProgressBar[] bars;
@@ -33,35 +30,47 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     private int numberOfReceived1=0,numberOFReceived2=0;
     private double []  dialFrequencies={697,770,852, 941,1209,1336,1477,1633};
     private int [] dialIndeces;
-
+    private EditText messageText,numberText;
+    public static boolean wasStopped=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         text = (TextView) findViewById(R.id.text);
+        if(savedInstanceState!=null) isRecording =savedInstanceState.getBoolean(ARG_IS_RECORDING);
         configureProgressBars();
+        messageText= (EditText) findViewById(R.id.messageTxt);
+        numberText= (EditText) findViewById(R.id.numberTxt);
         FragmentManager fm = getSupportFragmentManager();
         fragment = (TaskFragment) fm.findFragmentByTag(FRAGMENT_TAG);
         if (fragment == null) {
             fragment = TaskFragment.newInstance(frequency, blockSize);
             fm.beginTransaction().add(fragment, FRAGMENT_TAG).commit();
         }
+        else fragment.callbacks=this;
         final Button button = (Button) findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isRecordering) {
+                if (isRecording) {
                     button.setText("START");
-                    isRecordering = false;
+                    wasStopped=true;
+                    isRecording = false;
                 } else {
-                    isRecordering = true;
+                    isRecording = true;
                     button.setText("STOP");
                 }
-                fragment.switchTask(isRecordering);
+                fragment.switchTask(isRecording);
             }
         });
         dialIndeces=indexOfDialTones();
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ARG_IS_RECORDING, isRecording);
     }
 
     private void configureProgressBars() {
@@ -74,8 +83,8 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
                 findViewById(R.id.bar6),
                 findViewById(R.id.bar7),
                 findViewById(R.id.bar8),
-                findViewById(R.id.bar9),
-                findViewById(R.id.bar10)
+               // findViewById(R.id.bar9),
+                //findViewById(R.id.bar10)
         };
         bars = new ProgressBar[views.length];
         freqTexts = new TextView[views.length];
@@ -89,14 +98,20 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
 
 
     private void onFrequencyReceived(int numb) {
-        messageSent=true;
+       // messageSent=true;
         Log.e("asd","freqReceived");
-        String number = "863754345";
-        String msg="!?";
-        SmsManager sm = SmsManager.getDefault();
+        String number = numberText.getText().toString();
+        String msg=messageText.getText().toString();
+
         numberOfReceived1+=numb==1?1:0;
         numberOFReceived2+=numb==2?1:0;
-       // sm.sendTextMessage(number, null, msg, null, null);
+       if(numb==2){
+           if(number.equals("")) Toast.makeText(this,"Enter a number",Toast.LENGTH_SHORT).show();
+           else {
+               SmsManager.getDefault().sendTextMessage(number, null, msg, null, null);
+               Toast.makeText(this, "Message was sent", Toast.LENGTH_SHORT).show();
+           }
+       }
        text.setText(String.format("number of 1 events: %d\n number of 2 events: %d", numberOfReceived1,numberOFReceived2));
 
     }
@@ -116,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
 
 
         }*/
+
 
         for(int i=0;i<dialIndeces.length;i++){
             bars[i].setProgress((int) values[dialIndeces[i]] * 1000);
@@ -148,8 +164,8 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
         for(int i=0;i<values.length/2;i++){
             if(Math.abs(i-index1)>1 && Math.abs(i-index2)>1 &&values[i]>sensitivity)
                 noOtherFreq=false;
-            if(values[index1]>sensitivity && values[index2]>sensitivity)
-                Log.e("asd",String.format("%d Hz %.5f",(int)((double)frequency/blockSize*i),values[i]));
+           // if(values[index1]>sensitivity && values[index2]>sensitivity)
+            //    Log.e("asd",String.format("%d Hz %.5f",(int)((double)frequency/blockSize*i),values[i]));
         }
         return noOtherFreq && values[index1]>sensitivity && values[index2]>sensitivity;
 
