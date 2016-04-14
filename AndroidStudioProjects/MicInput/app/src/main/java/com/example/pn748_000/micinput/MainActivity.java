@@ -12,9 +12,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
+
 /**
  * Created by pn748_000 on 3/20/2016.
  */
+
 public class MainActivity extends AppCompatActivity implements TaskFragment.TaskCallbacks {
     private static final double sensitivity=1.0;
     private static final String FRAGMENT_TAG = "tag1";
@@ -32,15 +35,17 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     private int [] dialIndeces;
     private EditText messageText,numberText;
     public static boolean wasStopped=false;
+    private GraphView graphView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        text = (TextView) findViewById(R.id.text);
+        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.spectrum);
         if(savedInstanceState!=null) isRecording =savedInstanceState.getBoolean(ARG_IS_RECORDING);
-        configureProgressBars();
+       /* configureProgressBars();
+        text = (TextView) findViewById(R.id.text);
         messageText= (EditText) findViewById(R.id.messageTxt);
-        numberText= (EditText) findViewById(R.id.numberTxt);
+        numberText= (EditText) findViewById(R.id.numberTxt);*/
         FragmentManager fm = getSupportFragmentManager();
         fragment = (TaskFragment) fm.findFragmentByTag(FRAGMENT_TAG);
         if (fragment == null) {
@@ -63,8 +68,8 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
                 fragment.switchTask(isRecording);
             }
         });
-        dialIndeces=indexOfDialTones();
-
+       // dialIndeces=indexOfDialTones(); //finds index of dial frequencies
+        graphView= (GraphView) findViewById(R.id.graph);
     }
 
     @Override
@@ -132,8 +137,9 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
 
         }*/
 
-
-        for(int i=0;i<dialIndeces.length;i++){
+        graphView.setData(values,1,frequency);
+//---------------------------------------------------------------- this block is for dial tones
+    /*    for(int i=0;i<dialIndeces.length;i++){
             bars[i].setProgress((int) values[dialIndeces[i]] * 1000);
             freqTexts[i].setText(String.format("%d Hz", (int) ((double) frequency * dialIndeces[i] / blockSize)));
         }
@@ -145,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
             event2=true;
         }
         if(values[dialIndeces[0]]<sensitivity && values[dialIndeces[6]]<sensitivity && event1) event1=false;
-        if(values[dialIndeces[1]]<sensitivity && values[dialIndeces[6]]<sensitivity && event2) event2=false;
-
+        if(values[dialIndeces[1]]<sensitivity && values[dialIndeces[6]]<sensitivity && event2) event2=false;*/
+//---------------------------------------------------------------
 
     /*    for(int i=0;i<dial.length;i++){
             j = dial[i];
