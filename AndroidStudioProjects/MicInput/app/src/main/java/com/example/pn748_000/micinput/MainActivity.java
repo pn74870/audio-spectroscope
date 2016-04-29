@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
-        setContentView(R.layout.spectrum);
+        setContentView(R.layout.spectrum);//activity_main
         if(savedInstanceState!=null) isRecording =savedInstanceState.getBoolean(ARG_IS_RECORDING);
        /* configureProgressBars();
         text = (TextView) findViewById(R.id.text);
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements TaskFragment.Task
 
         }*/
 
-        graphView.setData(values,1,frequency);
+        graphView.setData(values,1,frequency);//
 //---------------------------------------------------------------- this block is for dial tones
     /*    for(int i=0;i<dialIndeces.length;i++){
             bars[i].setProgress((int) values[dialIndeces[i]] * 1000);
